@@ -160,7 +160,7 @@ import { PRODUCTS_QUERY, CATEGORIES_QUERY } from '@/graphql/queries'
 import { DELETE_PRODUCT_MUTATION } from '@/graphql/mutations'
 
 // Types
-interface Product {
+interface GraphQLProduct {
   id: string
   name: string
   description?: string
@@ -174,6 +174,18 @@ interface Product {
   }
 }
 
+interface ProductFormData {
+  id?: string
+  name: string
+  description: string
+  type: 'physical' | 'digital' | ''
+  price: number | string
+  stock: number | string
+  categoryId: string
+  photo?: File | string
+  photoPreview?: string
+}
+
 interface Category {
   id: string
   name: string
@@ -184,7 +196,7 @@ const searchQuery = ref('')
 const selectedCategoryId = ref('')
 const showAddModal = ref(false)
 const showEditModal = ref(false)
-const editingProduct = ref<Product | null>(null)
+const editingProduct = ref<ProductFormData | null>(null)
 
 // GraphQL queries
 const { result: productsResult, loading: productsLoading, refetch: refetchProducts } = useQuery(PRODUCTS_QUERY, {
@@ -201,7 +213,7 @@ const { result: categoriesResult, loading: categoriesLoading } = useQuery(CATEGO
 const { mutate: deleteProductMutation } = useMutation(DELETE_PRODUCT_MUTATION)
 
 // Computed properties
-const products = computed<Product[]>(() => productsResult.value?.products || [])
+const products = computed<GraphQLProduct[]>(() => productsResult.value?.products || [])
 const categories = computed<Category[]>(() => categoriesResult.value?.categories || [])
 const loading = computed(() => productsLoading.value || categoriesLoading.value)
 
@@ -221,7 +233,7 @@ const filteredProducts = computed(() => {
 })
 
 // Methods
-function editProduct(product: Product) {
+function editProduct(product: GraphQLProduct) {
   console.log('=== editProduct called ===')
   console.log('Original product from GraphQL:', product)
   

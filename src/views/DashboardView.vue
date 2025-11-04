@@ -397,6 +397,49 @@ import { GET_PRODUCTS, DELETE_PRODUCT } from '@/graphql/products'
 import { ORDERS_QUERY, CUSTOMERS_QUERY } from '@/graphql/queries'
 import { UPDATE_ORDER_STATUS_MUTATION } from '@/graphql/mutations'
 
+// Type definitions
+interface Product {
+  id: string
+  name: string
+  description?: string
+  price: number
+  productType: 'PHYSICAL' | 'DIGITAL'
+  stockQuantity?: number
+  imageUrl?: string
+  category?: {
+    id: string
+    name: string
+  }
+}
+
+interface ProductFormData {
+  id: string
+  name: string
+  description: string
+  type: 'physical' | 'digital'
+  price: number
+  stock: number
+  categoryId: string
+  photo: string
+  photoPreview: string
+}
+
+interface Order {
+  id: string
+  referenceNumber: string
+  status: string
+  paymentStatus: string
+  paymentMethod: string
+  grandTotal: number
+  createdAt: string
+  customer: {
+    id: string
+    fullName: string
+    email: string
+    mobileNumber: string
+  }
+}
+
 const router = useRouter()
 const authStore = useAuthStore()
 const { canManageProducts, canCreateOrders, canManageOrders, isAdmin } = usePermissions()
@@ -404,17 +447,17 @@ const { canManageProducts, canCreateOrders, canManageOrders, isAdmin } = usePerm
 const activeTab = ref('products')
 const isProductModalOpen = ref(false)
 const isEditingProduct = ref(false)
-const selectedProduct = ref(null)
+const selectedProduct = ref<ProductFormData | null>(null)
 
 // Product view modal state
 const showProductViewModal = ref(false)
-const selectedProductForView = ref(null)
+const selectedProductForView = ref<Product | null>(null)
 
 // Orders related state
 const activeOrderTab = ref('all')
 const showCreateOrderModal = ref(false)
 const showViewOrderModal = ref(false)
-const selectedOrder = ref(null)
+const selectedOrder = ref<Order | null>(null)
 
 const tabs = [
   { name: 'products', label: 'Products' },
@@ -456,7 +499,7 @@ const filteredOrders = computed(() => {
   if (activeOrderTab.value === 'all') {
     return orders.value
   }
-  return orders.value.filter(order => order.status.toLowerCase() === activeOrderTab.value)
+  return orders.value.filter((order: Order) => order.status.toLowerCase() === activeOrderTab.value)
 })
 
 /**
@@ -581,7 +624,7 @@ function getOrderCount(tabKey: string): number {
   if (tabKey === 'all') {
     return orders.value.length
   }
-  return orders.value.filter(order => order.status.toLowerCase() === tabKey).length
+  return orders.value.filter((order: Order) => order.status.toLowerCase() === tabKey).length
 }
 
 /**
@@ -654,9 +697,9 @@ async function updateOrderStatus(orderId: string, newStatus: string) {
 /**
  * View order details
  */
-function viewOrder(order: any) {
+function viewOrder(order: Order) {
   selectedOrder.value = order
-  showViewOrderModal.value = true
+  showOrderModal.value = true
 }
 
 /**
@@ -675,7 +718,7 @@ async function handleOrderUpdated() {
   
   // Update the selectedOrder with fresh data from the refetched list
   if (selectedOrder.value && orders.value) {
-    const updatedOrder = orders.value.find(order => order.id === selectedOrder.value?.id)
+    const updatedOrder = orders.value.find((order: Order) => order.id === selectedOrder.value?.id)
     if (updatedOrder) {
       selectedOrder.value = updatedOrder
     }

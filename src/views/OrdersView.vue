@@ -181,7 +181,7 @@
                       {{ order.orderItems.length }} item{{ order.orderItems.length > 1 ? 's' : '' }}
                     </div>
                     <div v-if="order.orderItems.length > 0" class="text-xs text-slate-400">
-                      {{ order.orderItems[0].product.name }}
+                      {{ order.orderItems[0].product?.name || 'Unknown Product' }}
                       <span v-if="order.orderItems.length > 1">+{{ order.orderItems.length - 1 }} more</span>
                     </div>
                   </td>
@@ -507,7 +507,7 @@ async function cancelOrder() {
   try {
     const result = await cancelOrderMutation({ id: orderToCancel.value.id })
     
-    if (result?.data?.cancelOrder?.errors?.length > 0) {
+    if (result && result.data?.cancelOrder?.errors?.length > 0) {
       alert(result.data.cancelOrder.errors[0])
     } else {
       showCancelConfirm.value = false

@@ -438,9 +438,9 @@ function closeSuccessModal() {
   
   // Reset form
   currentStep.value = 1
-  customerName.value = ''
-  contactNumber.value = ''
-  email.value = ''
+  customerInfo.value.customerName = ''
+  customerInfo.value.contactNumber = ''
+  customerInfo.value.email = ''
   deliveryAddress.value = {
     province: '',
     city: '',

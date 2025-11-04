@@ -23,7 +23,15 @@ const authLink = new ApolloLink((operation, forward) => {
 export const apolloClient = new ApolloClient({
   link: authLink.concat(httpLink),
   cache: new InMemoryCache(),
-  connectToDevTools: true,
+  connectToDevTools: import.meta.env.MODE === 'development',
+  defaultOptions: {
+    watchQuery: {
+      errorPolicy: 'ignore',
+    },
+    query: {
+      errorPolicy: 'all',
+    },
+  },
 })
 
 export default apolloClient
