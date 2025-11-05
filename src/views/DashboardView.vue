@@ -34,7 +34,7 @@
         <nav class="flex gap-8" aria-label="Navigation">
           <button
             v-if="canManageProducts"
-            @click="router.push('/')"
+            @click="activeTab = 'products'"
             :class="[
               'py-4 px-1 border-b-2 font-medium text-sm transition-colors',
               activeTab === 'products'
