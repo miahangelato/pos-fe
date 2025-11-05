@@ -699,7 +699,7 @@ async function updateOrderStatus(orderId: string, newStatus: string) {
  */
 function viewOrder(order: Order) {
   selectedOrder.value = order
-  showOrderModal.value = true
+  showViewOrderModal.value = true
 }
 
 /**
