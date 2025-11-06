@@ -675,7 +675,7 @@ const customerForm = reactive({
 const orderForm = reactive({
   orderType: 'ONLINE',
   paymentMethod: '',
-  shippingMethod: ''
+  shippingMethod: 'STANDARD'  // Set default shipping method
 })
 
 const deliveryForm = reactive({
@@ -917,10 +917,13 @@ async function submitOrder() {
       }
     }
 
-    console.log('Order variables:', JSON.stringify(variables, null, 2))
-
-    if (orderForm.orderType === 'ONLINE' && hasPhysicalProducts.value) {
+    // Add shipping method for ONLINE orders (required by backend)
+    if (orderForm.orderType === 'ONLINE') {
       variables.shippingMethod = orderForm.shippingMethod || 'STANDARD'
+    }
+
+    // Add delivery address for ONLINE orders with physical products
+    if (orderForm.orderType === 'ONLINE' && hasPhysicalProducts.value) {
       variables.deliveryAddressAttributes = {
         province: deliveryForm.province,
         city: deliveryForm.city,
@@ -933,9 +936,16 @@ async function submitOrder() {
       }
     }
 
+    console.log('Order variables:', JSON.stringify(variables, null, 2))
+
     const result = await createOrder(variables)
 
+    console.log('DEBUG: Full mutation result:', result)
+    console.log('DEBUG: result.data:', result?.data)
+    console.log('DEBUG: result.data.createOrder:', result?.data?.createOrder)
+
     if (result?.data?.createOrder?.order) {
+      console.log('DEBUG: Order created successfully:', result.data.createOrder.order)
       // Store the created order and show success modal
       createdOrder.value = result.data.createOrder.order
       showSuccessModal.value = true
@@ -946,6 +956,8 @@ async function submitOrder() {
       // Reset selected customer ID on successful order creation
       selectedCustomerId.value = null
     } else {
+      console.log('DEBUG: Order creation failed')
+      console.log('DEBUG: Errors:', result?.data?.createOrder?.errors)
       const errors = result?.data?.createOrder?.errors || ['Unknown error occurred']
       alert('Error creating order: ' + errors.join(', '))
     }
@@ -975,7 +987,7 @@ function closeSuccessModal() {
   deliveryForm.landmark = ''
   deliveryForm.remarks = ''
   orderForm.orderType = 'ONLINE'
-  orderForm.paymentMethod = 'COD'
+  orderForm.paymentMethod = ''
   orderForm.shippingMethod = 'STANDARD'
   emit('close')
 }
